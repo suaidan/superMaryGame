@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>canvas test</title>
+</head>
+<body>
+<input type="button" name="pasue" id="pasueBtn" value="开始动画" style="display: block">
+<canvas id="canvas" name="canvas">不支持canvas</canvas>
+</body>
+<script type="text/javascript" src="sprite.js"></script>
+<script type="text/javascript" src="engineMario"></script>
+<script type="text/javascript">
+    var canvas=document.getElementById('canvas');
+    var context=canvas.getContext("2d");
+    var bg=new Image();
+    var bg_v=40;//背景滚动的速度（每秒）
+    var fps=lastTime=0;
+    var bgOffset=0;
+    context.canvas.height=300;
+    context.canvas.width=1022;
+
+    // 计算fps,用来创作基于时间的动画独立于动画的暂停或者播放，指的是浏览器提供的硬件加速效果。
+    function calculateFps(){
+        var now=+new Date;
+        fps=1000/(now-lastTime);
+        lastTime=now;
+        requestAnimationFrame(calculateFps);
+    }
+    requestAnimationFrame(calculateFps);
+    //清除整个canvas
+    function erase(){
+        context.clearRect(0,0,canvas.width,canvas.height);
+    }
+    //绘画背景
+    function drawBackground(){
+        context.save();//保存canvas状态
+        bgOffset=bgOffset<512?bgOffset+bg_v/fps:0;
+        context.translate(-bgOffset,0);
+        context.drawImage(bg,0,0);
+        context.drawImage(bg,511,0);
+        context.drawImage(bg,1022,0);
+        context.restore();//恢复canvas状态
+    }
+    bg.src="images/desert.jpg";
+    bg.onload=function(){
+        context.drawImage(bg,0,0);
+        context.drawImage(bg,511,0);
+        context.drawImage(bg,1022,0);
+        console.log(1)  ;
+    }
+    /****************************************************************************/
+    //绘制马里奥精灵
+    var pasue = true,//判断是否暂停动画
+    marioSheet = new Image(),//加载马里奥图片
+    pasBtn = document.getElementById("pasueBtn"),
+    lastAdvance = time = 0,
+    permanent_v = 100,//每隔多少秒播放下一帧动画
+    runList=[//每个精灵的状态
+    {left:0,top:0,width:32,height:32},
+    {left:32,top:0,width:32,height:32},
+    {left:64,top:0,width:32,height:32},
+    {left:96,top:0,width:32,height:32},
+    {left:128,top:0,width:32,height:32},
+    {left:160,top:0,width:32,height:32},
+    {left:192,top:0,width:32,height:32},
+    {left:224,top:0,width:32,height:32},
+    {left:256,top:0,width:32,height:32},
+    {left:288,top:0,width:32,height:32},
+    {left:320,top:0,width:32,height:32},
+    {left:352,top:0,width:32,height:32},
+    {left:384,top:0,width:32,height:32},
+    {left:416,top:0,width:32,height:32},
+    {left:448,top:0,width:32,height:32}
+    ];
+    var marioSheet = new Image()
+    var spriteMario = new Sprite("mario", new SpriteSheetPainter([runList]));
+    spriteMario.left = canvas.width/2;
+    spriteMario.top = canvas.height-80;
+    spriteMario.width = 64;
+    spriteMario.height = 64;
+    pasBtn.onclick=function(){
+        if(!pasue){
+            pasBtn.value="开始动画";
+            pasue = true;
+            stopAnimate();
+        }else{
+            pasBtn.value="停止动画";
+            pasue = false;
+            startAnimate();
+        }
+    }
+    function marioAnimate(){
+        if(!pasue){
+          erase();
+          time = +new Date();
+          drawBackground();
+          spriteMario.paint(context,0);
+          if(time-lastAdvance > permanent_v){
+          spriteMario.painter.advance(0);
+          lastAdvance = time;
+          }
+          requestAnimationFrame(marioAnimate);
+        }
+    }
+    function stopAnimate(){
+       context.clearRect(0,0,canvas.width,canvas.height);
+       spriteMario.painter.cellIndex = 0;
+       context.save();
+       context.translate(-bgOffset,0);
+       context.drawImage(bg,0,0);
+       context.drawImage(bg,511,0);
+       context.drawImage(bg,1022,0);
+       context.restore();
+       context.drawImage(marioSheet,0,0,32,32,spriteMario.left,spriteMario.top,64,64);
+    }
+    function startAnimate(){
+       requestAnimationFrame(marioAnimate);
+    }
+    marioSheet.src = "images/mariosheet.png";
+    marioSheet.onload = function(){
+        context.drawImage(marioSheet,0,0,32,32,spriteMario.left,spriteMario.top,64,64);
+    }
+</script>
+</html>
