@@ -1,4 +1,4 @@
-// 精灵构造器。这里是构造函数，定义属性。
+// 精灵构造器。这里是构造函数，定义属性。加油
 function Sprite(name, painter, behaviors){
   if(name)this.name = name;//精灵的名字
   if(painter)this.painter = painter;//精灵的绘制器
@@ -19,7 +19,7 @@ function Sprite(name, painter, behaviors){
 Sprite.prototype.paint=function(context,i){
   if(this.visible&&this.painter.paint !== undefined){
     this.painter.paint(this,context,i);
-    
+
   }
 }
 //精灵的更新方法由行为数组中的对象提供
